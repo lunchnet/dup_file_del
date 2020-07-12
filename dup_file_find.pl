@@ -71,8 +71,8 @@ foreach my $key (@keysbysize){
     if (scalar @$value >= 2){ #there are duplicates
 	#keep the file with the shorter full filename (including path)
 	my @names = sort { length $a <=> length $b } @$value;
-	push @tokeep, shift @names, $key, dup_file_funcs::metric_size($sizes{$key});
-	push @todelete, @names, $key, dup_file_funcs::metric_size($sizes{$key});
+	push @tokeep, shift @names, "\t".$key, "\t".dup_file_funcs::metric_size($sizes{$key});
+	push @todelete, @names, "\t".$key, "\t".dup_file_funcs::metric_size($sizes{$key});
 	$todeletesize += $sizes{$key} * scalar @names;
     }    
 }

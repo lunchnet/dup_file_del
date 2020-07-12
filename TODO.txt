@@ -6,12 +6,26 @@ through the dup_report.txt file and deletes all files with a plus
 sign in front. It should warn if asking to delete all the files or
 not all of them.
 
-have a command line option to have a minimum size file that gets
-listed.
-
-DONE sort the output by filesize. It is about saving disk space afterall.
-
 Create the dup_file_del.pl program. This program reads in the output
 file of dup_file_find and, after the user has modified it, deletes the
 files the user has selected.
 
+Have a command line option to have a minimum size file that gets
+listed.
+
+DONE sort the output by filesize. It is about saving disk space afterall.
+
+Allow user to specify the working directory on the command line, this
+would allow the program to be used more like a normal binary instead
+of having to be in the same directory we are working in.
+
+Create tests?
+
+Restructure to have dup_file_funcs.pm live under ~/lib or
+/usr/local/lib and dup_file_find.pl and dup_file_del.pl to live under
+~/bin or /usr/local/bin
+
+Add option to dup_file_find.pl to create an output file where all
+files are already marked for deletion. This would allow one to more
+quickly delete a lot of files if you are confidend they can be
+deleted.
