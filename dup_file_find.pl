@@ -85,7 +85,7 @@ say $reportfile map {$_."\n"} @tokeep;
 say $reportfile "Duplicate files to delete:";
 say $reportfile map {$_."\n"} @todelete;
 say ""; #$todeletesize = $todeletesize/(1024**2);
-say $reportfile "Can free up to: $todeletesize bytes";
+#say $reportfile "Can free up to: $todeletesize bytes";
 say $reportfile "Can free up to: ", dup_file_funcs::metric_size($todeletesize);
 
 #EOF
