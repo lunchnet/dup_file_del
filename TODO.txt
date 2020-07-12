@@ -29,3 +29,10 @@ Add option to dup_file_find.pl to create an output file where all
 files are already marked for deletion. This would allow one to more
 quickly delete a lot of files if you are confidend they can be
 deleted.
+
+Re-order the output so the duplicates are near the files to keep, this
+makes it easier to read and decide what to keep rather than scrolling
+up and down.
+
+At the bottom, with the total size that can be freed, also list how
+many files can be deleted.
