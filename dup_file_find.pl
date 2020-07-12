@@ -99,3 +99,5 @@ say $reportfile "Can free up to: $todeletesize bytes";
 #listed.
 
 #sort the output by filesize. It is about saving disk space afterall.
+
+#some code here about odering by size...
