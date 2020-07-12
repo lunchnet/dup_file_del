@@ -19,20 +19,14 @@ use Cwd;
 #Duplicates are determined by checksumming each file.
 #use File::Checksum;
 use File::Find;
-use File::Basename;
+#use File::Basename;
 use Digest::SHA;
-use Data::Dumper;
+#use Data::Dumper;
 
 push @INC, getcwd();
 require "dup_file_funcs.pm";
-#use dup_file_funcs qw(metric_size);
-
+#use dup_file_funcs qw(metric_size); #doesn't work, done at compile time?
 #say "here's a meg",dup_file_funcs::metric_size(1_000_000);
-
-#say Checksum("dup_file_del.pl",64*1024);
-#say getcwd();
-#chdir 'C:/' or die "Cannot change directory: $!";
-#say getcwd();
 
 #say "*************";
 my %bighash;
@@ -60,16 +54,12 @@ find(\&wanted, @directories);
 
 #print Dumper(\%bighash);
 
-#create hash of full filenames and checksums
-#sort by checksum
-#iterate and remove most deeply nested duplicates
-
 #my %test = (test1 => 1, test2 => 2, test3 => 3, test4 => 4);
 #my @sortedkv = map { $_,$bighash{$_} } sort keys %bighash;
 #say map {$_.' '.$bighash{$_}."\n"} @sortedkeys;
 #my @pairs = pairs @sortedkv;
 
-#%bighash = unpairs grep { scalar @{$_->[1]} >= 2 } pairs %bighash;
+#%bighash = unpairs grep { scalar @{$_->[1]} >= 2 } pairs %bighash; #remove non-duplicates
 
 my @todelete;
 my @tokeep;
@@ -87,24 +77,6 @@ foreach my $key (@keysbysize){
     }    
 }
 
-# while (my ($key, $value) = each %bighash){
-#     #say $key, @$value;
-#     if (scalar @$value >= 2){ #there are duplicates
-# 	#keep the file with the shorter full filename (including path)
-# 	my @names = sort { length $a <=> length $b } @$value;
-# 	push @tokeep, shift @names, $key;
-# 	push @todelete, @names, $key;
-# 	$todeletesize += $sizes{$key} * scalar @names;
-#     }    
-# }
-
-# sub metric_sizes ($size){
-#     my $len = length $size;
-#     if ($len > 12) { return int($size/12)."TB";}
-#     elsif ($len > 9) { return int($size/9)."GB";}
-#     elsif ($len > 6) { return int($size/6)."MB";}
-#     elsif ($len > 3) { return int($size/3)."KB";}
-# }
 
 open my $reportfile, ">","dup_report.txt" or die "open failed:$!";
 
@@ -116,15 +88,4 @@ say ""; #$todeletesize = $todeletesize/(1024**2);
 say $reportfile "Can free up to: $todeletesize bytes";
 say $reportfile "Can free up to: ", dup_file_funcs::metric_size($todeletesize);
 
-#Idea: have the user put a plus sign at the start of any line of the
-#name of the file they wish to delete. Write a second script that goes
-#through the dup_report.txt file and deletes all files with a plus
-#sign in front. It should warn if asking to delete all the files or
-#not all of them.
-
-#have a command line option to have a minimum size file that gets
-#listed.
-
-#sort the output by filesize. It is about saving disk space afterall.
-
-#some code here about odering by size...
+#EOF
