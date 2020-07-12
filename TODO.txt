@@ -1,0 +1,17 @@
+TODO file
+
+Idea: have the user put a plus sign at the start of any line of the
+name of the file they wish to delete. Write a second script that goes
+through the dup_report.txt file and deletes all files with a plus
+sign in front. It should warn if asking to delete all the files or
+not all of them.
+
+have a command line option to have a minimum size file that gets
+listed.
+
+DONE sort the output by filesize. It is about saving disk space afterall.
+
+Create the dup_file_del.pl program. This program reads in the output
+file of dup_file_find and, after the user has modified it, deletes the
+files the user has selected.
+
