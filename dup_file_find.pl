@@ -23,6 +23,12 @@ use File::Basename;
 use Digest::SHA;
 use Data::Dumper;
 
+push @INC, getcwd();
+require "dup_file_funcs.pm";
+#use dup_file_funcs qw(metric_size);
+
+#say "here's a meg",dup_file_funcs::metric_size(1_000_000);
+
 #say Checksum("dup_file_del.pl",64*1024);
 #say getcwd();
 #chdir 'C:/' or die "Cannot change directory: $!";
@@ -68,17 +74,37 @@ find(\&wanted, @directories);
 my @todelete;
 my @tokeep;
 my $todeletesize = 0;
+my @keysbysize = sort { $sizes{$b} <=> $sizes{$a} } keys %sizes;
 
-while (my ($key, $value) = each %bighash){
-    #say $key, @$value;
+foreach my $key (@keysbysize){
+    my $value = $bighash{$key};
     if (scalar @$value >= 2){ #there are duplicates
 	#keep the file with the shorter full filename (including path)
 	my @names = sort { length $a <=> length $b } @$value;
-	push @tokeep, shift @names, $key;
-	push @todelete, @names, $key;
+	push @tokeep, shift @names, $key, dup_file_funcs::metric_size($sizes{$key});
+	push @todelete, @names, $key, dup_file_funcs::metric_size($sizes{$key});
 	$todeletesize += $sizes{$key} * scalar @names;
     }    
 }
+
+# while (my ($key, $value) = each %bighash){
+#     #say $key, @$value;
+#     if (scalar @$value >= 2){ #there are duplicates
+# 	#keep the file with the shorter full filename (including path)
+# 	my @names = sort { length $a <=> length $b } @$value;
+# 	push @tokeep, shift @names, $key;
+# 	push @todelete, @names, $key;
+# 	$todeletesize += $sizes{$key} * scalar @names;
+#     }    
+# }
+
+# sub metric_sizes ($size){
+#     my $len = length $size;
+#     if ($len > 12) { return int($size/12)."TB";}
+#     elsif ($len > 9) { return int($size/9)."GB";}
+#     elsif ($len > 6) { return int($size/6)."MB";}
+#     elsif ($len > 3) { return int($size/3)."KB";}
+# }
 
 open my $reportfile, ">","dup_report.txt" or die "open failed:$!";
 
@@ -88,6 +114,7 @@ say $reportfile "Duplicate files to delete:";
 say $reportfile map {$_."\n"} @todelete;
 say ""; #$todeletesize = $todeletesize/(1024**2);
 say $reportfile "Can free up to: $todeletesize bytes";
+say $reportfile "Can free up to: ", dup_file_funcs::metric_size($todeletesize);
 
 #Idea: have the user put a plus sign at the start of any line of the
 #name of the file they wish to delete. Write a second script that goes
