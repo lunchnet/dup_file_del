@@ -25,7 +25,7 @@ while (<$infile>){
     #Look for a plus sign in front of line; if found delete the file
     #specified by the rest of the line.
     chomp;
-    if (/^\+(.*$)/) {
+    if (/^\+\s*(.*$)/) {
 	say "deleting: ".$1;
 	#unlink $1;
     }

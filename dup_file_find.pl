@@ -61,31 +61,33 @@ find(\&wanted, @directories);
 
 #%bighash = unpairs grep { scalar @{$_->[1]} >= 2 } pairs %bighash; #remove non-duplicates
 
-my @todelete;
-my @tokeep;
-my $todeletesize = 0;
 my @keysbysize = sort { $sizes{$b} <=> $sizes{$a} } keys %sizes;
+my $todeletesize = 0; #total size of duplicate files
+my $numduplicates=0; #how many duplicate files are there
 
+#while (my ($key, $value) = each %bighash){
 foreach my $key (@keysbysize){
     my $value = $bighash{$key};
     if (scalar @$value >= 2){ #there are duplicates
-	#keep the file with the shorter full filename (including path)
 	my @names = sort { length $a <=> length $b } @$value;
-	push @tokeep, shift @names, "\t".$key, "\t".dup_file_funcs::metric_size($sizes{$key});
-	push @todelete, @names, "\t".$key, "\t".dup_file_funcs::metric_size($sizes{$key});
-	$todeletesize += $sizes{$key} * scalar @names;
-    }    
+	$bighash{$key} = \@names;
+	$todeletesize += $sizes{$key} * (scalar @names - 1);
+	$numduplicates += scalar @names - 1;
+    }
 }
 
-
 open my $reportfile, ">","dup_report.txt" or die "open failed:$!";
-
-say $reportfile "Files to keep:";
-say $reportfile map {$_."\n"} @tokeep;
-say $reportfile "Duplicate files to delete:";
-say $reportfile map {$_."\n"} @todelete;
-say ""; #$todeletesize = $todeletesize/(1024**2);
-#say $reportfile "Can free up to: $todeletesize bytes";
-say $reportfile "Can free up to: ", dup_file_funcs::metric_size($todeletesize);
+foreach my $key (@keysbysize){
+    my $value = $bighash{$key};
+    if (scalar @$value >= 2){ #there are duplicates
+	say $reportfile '*'x80;
+	say $reportfile $key, "\t", dup_file_funcs::metric_size($sizes{$key});
+	print $reportfile map { "\t".$_."\n" } @{$bighash{$key}};
+    }	
+}
+print "\n";
+say $reportfile '*'x80;
+say $reportfile "Can free up to: ",
+    dup_file_funcs::metric_size($todeletesize), " in $numduplicates files.";
 
 #EOF
