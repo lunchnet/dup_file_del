@@ -13,8 +13,6 @@ files the user has selected.
 Have a command line option to have a minimum size file that gets
 listed.
 
-DONE sort the output by filesize. It is about saving disk space afterall.
-
 Allow user to specify the working directory on the command line, this
 would allow the program to be used more like a normal binary instead
 of having to be in the same directory we are working in.
@@ -30,9 +28,12 @@ files are already marked for deletion. This would allow one to more
 quickly delete a lot of files if you are confidend they can be
 deleted.
 
-Re-order the output so the duplicates are near the files to keep, this
+DONE Re-order the output so the duplicates are near the files to keep, this
 makes it easier to read and decide what to keep rather than scrolling
 up and down.
 
-At the bottom, with the total size that can be freed, also list how
+DONE At the bottom, with the total size that can be freed, also list how
 many files can be deleted.
+
+DONE sort the output by filesize. It is about saving disk space afterall.
+
