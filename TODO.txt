@@ -6,10 +6,6 @@ through the dup_report.txt file and deletes all files with a plus
 sign in front. It should warn if asking to delete all the files or
 not all of them.
 
-Create the dup_file_del.pl program. This program reads in the output
-file of dup_file_find and, after the user has modified it, deletes the
-files the user has selected.
-
 Have a command line option to have a minimum size file that gets
 listed.
 
@@ -28,6 +24,9 @@ files are already marked for deletion. This would allow one to more
 quickly delete a lot of files if you are confidend they can be
 deleted.
 
+Consider using the sha256 unix tool instead of the sha algorithm built
+into perl. It might be faster. Or maybe using a smaller hash say 128.
+
 DONE Re-order the output so the duplicates are near the files to keep, this
 makes it easier to read and decide what to keep rather than scrolling
 up and down.
@@ -37,3 +36,6 @@ many files can be deleted.
 
 DONE sort the output by filesize. It is about saving disk space afterall.
 
+DONE Create the dup_file_del.pl program. This program reads in the output
+file of dup_file_find and, after the user has modified it, deletes the
+files the user has selected.

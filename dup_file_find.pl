@@ -21,6 +21,7 @@ use Cwd;
 use File::Find;
 #use File::Basename;
 use Digest::SHA;
+#use Digest::file qw(digest_file_hex);
 #use Data::Dumper;
 
 push @INC, getcwd();
@@ -49,6 +50,19 @@ sub wanted {
     #    $bighash{$File::Find::name}=$sha->hexdigest;
     $sizes{$hex} = -s;
 }
+
+# sub wantedmd5 {
+#     return if -d; #ignore directories
+#     return if $File::Find::name =~ m/^\./; #ignore hidden files
+#     #$sha->new();
+#     #say "Inside wanted, filename is: $File::Find::name";
+#     #$sha->addfile($File::Find::name,"b");
+#     #my $hex = $sha->hexdigest;
+#     my $hex = digest_file_hex($File::Find::name, "MD5");
+#     push @{$bighash{$hex}},$File::Find::name; 
+#     #    $bighash{$File::Find::name}=$sha->hexdigest;
+#     $sizes{$hex} = -s;
+# }
 
 find(\&wanted, @directories);
 
