@@ -25,14 +25,14 @@ use Digest::SHA;
 push @INC, getcwd();
 require "dup_file_funcs.pm";
 
-my %bighash;
-my %sizes;
+my %bighash; #Store lists of identical files keyed by their checksum.
+my %sizes; #Store sizes of each file keyed by checksum.
 my $sha = Digest::SHA->new("256");
 my @directories = getcwd();
 
 sub wanted {
-    return if -d; #ignore directories
-    return if $File::Find::name =~ m/^\./; #ignore hidden files
+    return if -d; #Ignore directories.
+    return if $File::Find::name =~ m/^\./; #Ignore hidden files.
     #say "Inside wanted, filename is: $File::Find::name";
     $sha->new();
     $sha->addfile($File::Find::name,"b");
@@ -41,35 +41,37 @@ sub wanted {
     $sizes{$hex} = -s;
 }
 
-#Runs too slowly, apparently opening and reading multiple files is
-#expensive. Can try MCE multicore, perl interpreter threads, or
-#calling an external shasum executable.
+#Written like this, the program is very slow. Apparently opening
+#and reading multiple files is too expensive. Can try MCE multicore,
+#perl interpreter threads, or calling an external shasum executable.
 find(\&wanted, @directories); 
 
 my @keysbysize = sort { $sizes{$b} <=> $sizes{$a} } keys %sizes;
-my $todeletesize = 0; #total size of duplicate files
-my $numduplicates=0; #how many duplicate files are there
+my $todeletesize = 0; #Total bytes in duplicate files.
+my $numduplicates=0; #Number of duplicate files.
 
-#Prepare data for output
+#Prepare data for output: sort duplicate file names by length,
+#calculate total bytes we can delete, and calculate total number of
+#duplicate files.
 foreach my $key (@keysbysize){
-    my $value = $bighash{$key};
-    if (scalar @$value >= 2){ #there are duplicates
-	my @names = sort { length $a <=> length $b } @$value;
-	$bighash{$key} = \@names;
-	$todeletesize += $sizes{$key} * (scalar @names - 1);
-	$numduplicates += scalar @names - 1;
-    }
+    my $names = $bighash{$key};
+    next unless @$names >= 2; #there are duplicates
+    @$names = sort { length $a <=> length $b } @$names;
+    $todeletesize += $sizes{$key} * (@$names - 1);
+    $numduplicates += @$names - 1;
 }
 
-#Write data to output file
+#Write data to output file. From the largest to the smallest files,
+#print the hash and filesize on one line, and all duplicate files
+#underneath. Finally, print the total bytes we can delete and the
+#number of duplicate files.
 open my $reportfile, ">","dup_report.txt" or die "open failed:$!";
 foreach my $key (@keysbysize){
-    my $value = $bighash{$key};
-    if (scalar @$value >= 2){ #there are duplicates
-	say $reportfile '*'x80;
-	say $reportfile $key, "\t", dup_file_funcs::metric_size($sizes{$key});
-	print $reportfile map { "\t".$_."\n" } @{$bighash{$key}};
-    }	
+    my $names = $bighash{$key};
+    next unless @$names >= 2; #there are duplicates
+    say $reportfile '*'x80;
+    say $reportfile $key, "\t", dup_file_funcs::metric_size($sizes{$key});
+    print $reportfile map { "\t".$_."\n" } @$names;
 }
 print "\n";
 say $reportfile '*'x80;
