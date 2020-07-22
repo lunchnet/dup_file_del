@@ -27,6 +27,9 @@ deleted.
 Consider using the sha256 unix tool instead of the sha algorithm built
 into perl. It might be faster. Or maybe using a smaller hash say 128.
 
+Add option to dup_file_del.pl to delete empty folders if the tool
+deleted all the files within.
+
 DONE Re-order the output so the duplicates are near the files to keep, this
 makes it easier to read and decide what to keep rather than scrolling
 up and down.

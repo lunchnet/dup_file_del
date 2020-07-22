@@ -9,77 +9,48 @@ use feature qw(signatures);
 no warnings qw(experimental::signatures);
 #no feature qw(indirect);
 use List::Util qw(any all sum pairs unpairs);
+#say "True" if any { $_ eq "hi" } qw/hi there test world/;
 use Benchmark qw(timethese cmpthese);
 #timethese(100000, { a => 'summ(100)', b => 'sum 1..100' });
 #cmpthese(-5, { a => 'summ(100)', b => 'sum 1..100' });
-#say "True" if any { $_ eq "hi" } qw/hi there test world/;
 use Cwd;
+#getcwd();
 
 #Program to walk the given directory and remove duplicate files.
 #Duplicates are determined by checksumming each file.
-#use File::Checksum;
+
 use File::Find;
-#use File::Basename;
 use Digest::SHA;
-#use Digest::file qw(digest_file_hex);
-#use Data::Dumper;
 
 push @INC, getcwd();
 require "dup_file_funcs.pm";
-#use dup_file_funcs qw(metric_size); #doesn't work, done at compile time?
-#say "here's a meg",dup_file_funcs::metric_size(1_000_000);
 
-#say "*************";
 my %bighash;
 my %sizes;
 my $sha = Digest::SHA->new("256");
 my @directories = getcwd();
 
-# my $filename = "dup_file_del.pl";
-# $sha->addfile($filename,"b");
-# say $sha->hexdigest;
-
 sub wanted {
     return if -d; #ignore directories
     return if $File::Find::name =~ m/^\./; #ignore hidden files
-    $sha->new();
     #say "Inside wanted, filename is: $File::Find::name";
+    $sha->new();
     $sha->addfile($File::Find::name,"b");
     my $hex = $sha->hexdigest;
     push @{$bighash{$hex}},$File::Find::name; 
-    #    $bighash{$File::Find::name}=$sha->hexdigest;
     $sizes{$hex} = -s;
 }
 
-# sub wantedmd5 {
-#     return if -d; #ignore directories
-#     return if $File::Find::name =~ m/^\./; #ignore hidden files
-#     #$sha->new();
-#     #say "Inside wanted, filename is: $File::Find::name";
-#     #$sha->addfile($File::Find::name,"b");
-#     #my $hex = $sha->hexdigest;
-#     my $hex = digest_file_hex($File::Find::name, "MD5");
-#     push @{$bighash{$hex}},$File::Find::name; 
-#     #    $bighash{$File::Find::name}=$sha->hexdigest;
-#     $sizes{$hex} = -s;
-# }
-
-find(\&wanted, @directories);
-
-#print Dumper(\%bighash);
-
-#my %test = (test1 => 1, test2 => 2, test3 => 3, test4 => 4);
-#my @sortedkv = map { $_,$bighash{$_} } sort keys %bighash;
-#say map {$_.' '.$bighash{$_}."\n"} @sortedkeys;
-#my @pairs = pairs @sortedkv;
-
-#%bighash = unpairs grep { scalar @{$_->[1]} >= 2 } pairs %bighash; #remove non-duplicates
+#Runs too slowly, apparently opening and reading multiple files is
+#expensive. Can try MCE multicore, perl interpreter threads, or
+#calling an external shasum executable.
+find(\&wanted, @directories); 
 
 my @keysbysize = sort { $sizes{$b} <=> $sizes{$a} } keys %sizes;
 my $todeletesize = 0; #total size of duplicate files
 my $numduplicates=0; #how many duplicate files are there
 
-#while (my ($key, $value) = each %bighash){
+#Prepare data for output
 foreach my $key (@keysbysize){
     my $value = $bighash{$key};
     if (scalar @$value >= 2){ #there are duplicates
@@ -90,6 +61,7 @@ foreach my $key (@keysbysize){
     }
 }
 
+#Write data to output file
 open my $reportfile, ">","dup_report.txt" or die "open failed:$!";
 foreach my $key (@keysbysize){
     my $value = $bighash{$key};
